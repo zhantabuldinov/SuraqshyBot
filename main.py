@@ -3,14 +3,13 @@ from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, Con
 import google.generativeai as genai
 import random
 
-TOKEN = "8592574944:AAF8AALERmnrmOd-JVxmokPWjlrV1_tgC20"
-GEMINI_API_KEY = "AIzaSyCVkokgcVIhKxf0DL8yM2R5g5NcQDVIc0w"
+TOKEN = "YOUR_TOKEN"
+GEMINI_API_KEY = "YOUR_API"
 
-# Инициализация Google Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-# 🔹 ПРЕСЕТЫ (СЛОВАРЬ)
+#  ПРЕСЕТЫ 
 WORDS = {
     "сенім": "Сенім — бұл адамға немесе іске деген ішкі сену сезімі.\nМысал: Мен досыма сенім артамын.",
     "мәдениет": "Мәдениет — халықтың дәстүрі, тілі, өнері және өмір салты.",
@@ -19,28 +18,28 @@ WORDS = {
     "білім": "Білім — оқу арқылы алынатын ақпарат пен тәжірибе."
 }
 
-# 🔹 ЦИФРОВОЙ КОНСУЛЬТАНТ
+#  ЦИФРОВОЙ КОНСУЛЬТАНТ
 SECURITY_TIPS = {
     "пароль": "🔐 Құпия сөздің ережелері:\n• Кем дегенде 12 символ\n• Әр түрлі сандар, әріптер, белгілер қолданыңыз\n• Құпиясөзді ұмытпай, басқалар арасында бөліспеңіз\n• Қазір құпиясөз жеңіл болса, өзгертіңіз.",
     "фейк": "⚠️ Фейк ақпаратқа алданбау үшін:\n• Ақпараттың дереккөзін тексеріңіз (ресми сайт па, сенімді медиа ма).\n• Бір жаңалықты бірнеше жерден салыстырып көріңіз.\n• Өте эмоциялық немесе қорқынышты тақырыптарға бірден сенбеңіз.\n• Күмәнді сілтемелерді ашпаңыз және тексерілмеген ақпаратты таратпаңыз.",
     "интернет": "🌐 Интернеттің қауіпсіздігі:\n• VPN арқылы ашық Wi-Fi ұйымдарында қосылмаңыз\n• Сенімсіз сайттаға кірмеңіз\n• Кез-келген файлды орнату үшін алдымен оны тексеріңіз\n• Антивирус бағдарламасын өзінің компьютерінде орнатыңыз"
 }
 
-# 🔹 КУЛЬТУРНЫЙ НАВИГАТОР
+#  КУЛЬТУРНЫЙ НАВИГАТОР
 CULTURAL_PLACES = {
     "театр": "🎭 Казахстанның театрлары:\n• Абай атындағы Ұлттық опера және балет театры\n• Қазақ драма театры\n• Астана Опера театры\n👉 Ішінен іздеңіз: https://ticketon.kz/astana/theatres",
     "кино": "🎬 Қазақша кинотеатрлар:\n• Imax Almaty\n• Евразия кинотеатры\n• Казахстан кинотеатры\n📍 Афиша: https://ticketon.kz/astana/cinema",
     "мероприятие": "🎉 Мәдени іс-шараларының атласы:\n• Этнофестивали\n• Ғалым конференциялары\n• Музыкалық фестивальдар\n📌 Іздеу: https://ticketon.kz/"
 }
 
-# 🔹 ЯЗЫКОВОЙ АССИСТЕНТ
+#  ЯЗЫКОВОЙ АССИСТЕНТ
 LANGUAGE_EXAMPLES = {
     "орфография": "✏️ Орфография тексті тексте:\n• 'Қабылданыңыз' емес 'Қабылдаңыз'\n• 'Келдіміңіз' емес 'Келдіңіз бе?'\n• 'Білім берілу' емес 'Білім беру'\n💡 Сөздіктерді тексеріңіз: https://sozdik.kz/",
     "перевод": "🌍 Әрқайсысының аудармасы:\n• Цифрлық - Digital\n• Қауіпсіздік - Security\n• Мәдениет - Culture\n📚 Практика: https://translate.yandex.ru/dictionary/%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-%D0%90%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9/%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D0%BA%D0%B8%D0%B9",
     "грамматика": "📖 Қазақ грамматика ережелері:\n• Сөз түзілісі (синтаксис)\n• Әріп құрылымы (морфология)\n• Дыбыстық ережелер\n🎓 Қазақшаны тез үйрену: https://soyle.kz/"
 }
 
-# 🔹 МОТИВИРУЮЩИЕ ВЫСКАЗЫВАНИЯ (Печенье с пожеланием)
+#  МОТИВИРУЮЩИЕ ВЫСКАЗЫВАНИЯ
 MOTIVATIONS = [
     "✨ Бүгін жасаған әрбір ісіңіз – алға жасалған қадам. Өзіңізбен мақтаныңыз! 💪",
     "🌟 Сіз көп нәрсеге қабілетті жансыз. Мақсатыңызға сеніммен қадам басыңыз! 🚀",
@@ -83,35 +82,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     word = update.message.text.lower().strip()
-
-    # Проверяем в словаре терминов
     if word in WORDS:
         keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="back_to_menu")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(WORDS[word], reply_markup=reply_markup)
-    # Проверяем в советах по цифровой безопасности
     elif word in SECURITY_TIPS:
         keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="security")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(SECURITY_TIPS[word], reply_markup=reply_markup)
-    # Проверяем в культурных местах
     elif word in CULTURAL_PLACES:
         keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="culture")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(CULTURAL_PLACES[word], reply_markup=reply_markup)
-    # Проверяем в языковых примерах
     elif word in LANGUAGE_EXAMPLES:
         keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="language")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(LANGUAGE_EXAMPLES[word], reply_markup=reply_markup)
-    # Если слово не найдено - ищем через Google Gemini
     else:
-        # Проверяем, что это казахское слово
         if any(ord(c) >= 0x0400 for c in word):
             await update.message.reply_text("⏳ Іздеп жатырмын... Бірсәт күтіңіз")
             
             try:
-                # Запрашиваем объяснение в Google Gemini
                 prompt = f"""Объясни казахское слово '{word}' на казахском языке. 
 Дай краткое, четкое объяснение (2-3 предложения).
 Если возможно, добавь пример использования.
@@ -122,10 +113,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 response = model.generate_content(prompt)
                 explanation = response.text
                 
-                # Сохраняем слово в словарь
                 WORDS[word] = explanation
                 
-                # Отправляем объяснение пользователю
                 keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="back_to_menu")]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
                 await update.message.reply_text(
@@ -134,7 +123,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
             except Exception as e:
                 await update.message.reply_text(
-                    f"⚠️ Қать болды: {str(e)}\n\n"
+                    f"⚠️ Қате болды: {str(e)}\n\n"
                     "Іздеуді қайта көріңіз немесе басқа сөз жазыңыз."
                 )
         else:
@@ -147,7 +136,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "/language — тіл ассистенті"
             )
 
-# 🔹 ЦИФРОВОЙ КОНСУЛЬТАНТ
+#  ЦИФРОВОЙ КОНСУЛЬТАНТ
 async def security_tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("🔐 Пароль", callback_data="sec_password")],
@@ -168,7 +157,7 @@ async def handle_security(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if topic in SECURITY_TIPS:
         await update.message.reply_text(SECURITY_TIPS[topic])
 
-# 🔹 КУЛЬТУРНЫЙ НАВИГАТОР
+#  КУЛЬТУРНЫЙ НАВИГАТОР
 async def cultural_guide(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("🎭 Театрлар", callback_data="cult_theatre")],
@@ -189,7 +178,7 @@ async def handle_culture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if place in CULTURAL_PLACES:
         await update.message.reply_text(CULTURAL_PLACES[place])
 
-# 🔹 ЯЗЫКОВОЙ АССИСТЕНТ
+#  ЯЗЫКОВОЙ АССИСТЕНТ
 async def language_assistant(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("✏️ Орфография", callback_data="lang_ortho")],
@@ -210,7 +199,7 @@ async def handle_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if topic in LANGUAGE_EXAMPLES:
         await update.message.reply_text(LANGUAGE_EXAMPLES[topic])
 
-# 🔹 ОБРАБОТЧИК КНОПОК (Callback Handler)
+#  ОБРАБОТЧИК КНОПОК
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -232,7 +221,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
     
-    # СЛОВАРЬ - СЛОВА
+    # СЛОВАРЬ 
     elif query.data == "word_senіm":
         keyboard = [[InlineKeyboardButton("⬅️ Артқа", callback_data="words")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
